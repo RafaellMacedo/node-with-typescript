@@ -1,0 +1,7 @@
+[credential]
+    helper = ''
+[user]
+    name = Rafael Macedo
+    email = rafaelldemacedo@gmail.com
+[alias]
+    merge-dev = !git checkout develop
