@@ -1,17 +1,27 @@
-export class SignUpController {
-    handle (httpRequest: any): any {
-        if (!httpRequest.body.name) {
-            return {
-                statusCode: 400,
-                body: new Error('Missing param: name')
+import { InvalidParamError } from '../errors/invalid-param-error copy'
+import { MissingParamError } from '../errors/missing-param-error'
+import { badRequest } from '../helpers/http-helper'
+import { Controller } from '../protocols/controller'
+import { EmailValidator } from '../protocols/email-validator'
+import { HttpRequest, HttpResponse } from '../protocols/http'
+
+export class SignUpController implements Controller {
+    private readonly emailValidator: EmailValidator
+
+    constructor (emailValidator: EmailValidator) {
+        this.emailValidator = emailValidator
+    }
+
+    handle (httpRequest: HttpRequest): HttpResponse {
+        const requiredFiles = ['name', 'email', 'password', 'passwordConfirmation']
+        for (const field of requiredFiles) {
+            if (!httpRequest.body[field]) {
+                return badRequest(new MissingParamError(field))
             }
         }
-
-        if (!httpRequest.body.email) {
-            return {
-                statusCode: 400,
-                body: new Error('Missing param: email')
-            }
+        const isValid = this.emailValidator.isValid(httpRequest.body.email)
+        if (!isValid) {
+            return badRequest(new InvalidParamError('email'))
         }
     }
 }
